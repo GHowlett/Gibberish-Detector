@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os
 import math
 import pickle
 
@@ -9,7 +10,7 @@ pos = dict([(char, idx) for idx, char in enumerate(accepted_chars)])
 
 def normalize(line):
     """ Return only the subset of chars from accepted_chars.
-    This helps keep the  model relatively small by ignoring punctuation, 
+    This helps keep the  model relatively small by ignoring punctuation,
     infrequenty symbols, etc. """
     return [c.lower() for c in line if c.lower() in accepted_chars]
 
@@ -28,13 +29,13 @@ def train():
     # string has 0 probability.
     counts = [[10 for i in xrange(k)] for i in xrange(k)]
 
-    # Count transitions from big text file, taken 
+    # Count transitions from big text file, taken
     # from http://norvig.com/spell-correct.html
-    for line in open('big.txt'):
+    for line in open(os.path.join(os.path.dirname(__file__),'big.txt')):
         for a, b in ngram(2, line):
             counts[pos[a]][pos[b]] += 1
 
-    # Normalize the counts so that they become log probabilities.  
+    # Normalize the counts so that they become log probabilities.
     # We use log probabilities rather than straight probabilities to avoid
     # numeric underflow issues with long texts.
     # This contains a justification:
@@ -46,15 +47,17 @@ def train():
 
     # Find the probability of generating a few arbitrarily choosen good and
     # bad phrases.
-    good_probs = [avg_transition_prob(l, counts) for l in open('good.txt')]
-    bad_probs = [avg_transition_prob(l, counts) for l in open('bad.txt')]
+    dir = os.path.dirname(__file__)
+    good_probs = [avg_transition_prob(l, counts) for l in open(os.path.join(dir,'good.txt'))]
+    bad_probs = [avg_transition_prob(l, counts) for l in open(os.path.join(dir,'bad.txt'))]
 
     # Assert that we actually are capable of detecting the junk.
     assert min(good_probs) > max(bad_probs)
 
     # And pick a threshold halfway between the worst good and best bad inputs.
     thresh = (min(good_probs) + max(bad_probs)) / 2
-    pickle.dump({'mat': counts, 'thresh': thresh}, open('gib_model.pki', 'wb'))
+    gib_model_file = os.path.join(os.path.dirname(__file__),'gib_model.pki')
+    pickle.dump({'mat': counts, 'thresh': thresh}, open(gib_model_file, 'wb'))
 
 def avg_transition_prob(l, log_prob_mat):
     """ Return the average transition prob from l through log_prob_mat. """
@@ -69,7 +72,3 @@ def avg_transition_prob(l, log_prob_mat):
 if __name__ == '__main__':
     train()
 
-
-
-    
-    
