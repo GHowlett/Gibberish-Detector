@@ -63,11 +63,17 @@ def avg_transition_prob(l, log_prob_mat):
     """ Return the average transition prob from l through log_prob_mat. """
     log_prob = 0.0
     transition_ct = 0
-    for a, b in ngram(2, l):
-        log_prob += log_prob_mat[pos[a]][pos[b]]
+    for i in range(len(l) -1):
+        a = l[i].lower()
+        b = l[i+1].lower()
+	if a in accepted_chars and b in accepted_chars:   
+            log_prob += log_prob_mat[pos[a]][pos[b]]
+	else: 
+            log_prob += math.log(0.001) # penalty for non-accepted char
         transition_ct += 1
     # The exponentiation translates from log probs to probs.
-    return math.exp(log_prob / (transition_ct or 1))
+    if transition_ct <= 0: return 0
+    else: return math.exp(log_prob / (transition_ct or 1))
 
 if __name__ == '__main__':
     train()
