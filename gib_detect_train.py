@@ -52,6 +52,7 @@ def train():
     bad_probs = [avg_transition_prob(l, counts) for l in open(os.path.join(dir,'bad.txt'))]
 
     # And pick a threshold halfway between the worst good and best bad inputs.
+    # TODO: do a better job at picking a threshold
     thresh = (min(good_probs) + max(bad_probs)) / 2
     gib_model_file = os.path.join(os.path.dirname(__file__),'gib_model.pki')
     pickle.dump({'mat': counts, 'thresh': thresh}, open(gib_model_file, 'wb'))
@@ -66,7 +67,7 @@ def avg_transition_prob(l, log_prob_mat, thresh=0.001):
 	if a in accepted_chars and b in accepted_chars:   
             log_prob += log_prob_mat[pos[a]][pos[b]]
 	else: 
-            log_prob += math.log(0.001) # penalty for non-accepted char
+            log_prob += math.log(thresh/2) # penalty for non-accepted char
         transition_ct += 1
     # The exponentiation translates from log probs to probs.
     if transition_ct <= 0: return 0
