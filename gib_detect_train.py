@@ -4,7 +4,7 @@ import os
 import math
 import pickle
 
-accepted_chars = 'abcdefghijklmnopqrstuvwxyz '
+accepted_chars = 'abcdefghijklmnopqrstuvwxyz .,!?0123456789'
 
 pos = dict([(char, idx) for idx, char in enumerate(accepted_chars)])
 
@@ -51,15 +51,12 @@ def train():
     good_probs = [avg_transition_prob(l, counts) for l in open(os.path.join(dir,'good.txt'))]
     bad_probs = [avg_transition_prob(l, counts) for l in open(os.path.join(dir,'bad.txt'))]
 
-    # Assert that we actually are capable of detecting the junk.
-    assert min(good_probs) > max(bad_probs)
-
     # And pick a threshold halfway between the worst good and best bad inputs.
     thresh = (min(good_probs) + max(bad_probs)) / 2
     gib_model_file = os.path.join(os.path.dirname(__file__),'gib_model.pki')
     pickle.dump({'mat': counts, 'thresh': thresh}, open(gib_model_file, 'wb'))
 
-def avg_transition_prob(l, log_prob_mat):
+def avg_transition_prob(l, log_prob_mat, thresh=0.001):
     """ Return the average transition prob from l through log_prob_mat. """
     log_prob = 0.0
     transition_ct = 0

@@ -13,7 +13,7 @@ def is_gibberish(string):
     return gib_detect_train.avg_transition_prob(string, model_mat) <= threshold
 
 if __name__ == "__main__":
-    print 'threshold: ' + str(threshold)
+    print('threshold: ' + str(threshold))
     while True:
         input = raw_input()
         prob = gib_detect_train.avg_transition_prob(input, model_mat)
