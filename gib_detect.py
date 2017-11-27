@@ -5,6 +5,7 @@ import gib_detect_train
 import os
 
 gib_model_file = os.path.join(os.path.dirname(__file__),'gib_model.pki')
+if not os.path.isfile(gib_model_file): gib_detect_train.train()
 model_data = pickle.load(open(gib_model_file, 'rb'))
 model_mat = model_data['mat']
 threshold = model_data['thresh']
